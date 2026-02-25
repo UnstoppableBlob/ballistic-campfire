@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://do3j8kote024j"]
+
+[ext_resource type="Script" uid="uid://dymxf0txidqa8" path="res://scripts/player.gd" id="1_agjl5"]
+[ext_resource type="PackedScene" uid="uid://7broruggg1bk" path="res://scenes/paintball.tscn" id="2_dj65e"]
+[ext_resource type="Script" uid="uid://c0iv6vmjog1bk" path="res://scripts/aim.gd" id="3_hb4is"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_3vyb7"]
+radius = 4.0
+height = 8.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_qhqgy"]
+radius = 4.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_qhqgy"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_dqkch"]
+
+[node name="Player" type="CharacterBody2D" unique_id=1626312212]
+script = ExtResource("1_agjl5")
+player_id = 1
+paintball_scene = ExtResource("2_dj65e")
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="." unique_id=81834204]
+mesh = SubResource("SphereMesh_3vyb7")
+
+[node name="aim_container" type="Node2D" parent="." unique_id=1631614493]
+
+[node name="aim" type="Node2D" parent="aim_container" unique_id=1751198813]
+position = Vector2(4, 0)
+script = ExtResource("3_hb4is")
+
+[node name="spawner" type="Marker2D" parent="aim_container" unique_id=639967142]
+
+[node name="Line2D" type="Line2D" parent="aim_container" unique_id=1346437078]
+z_index = -2
+width = 1.0
+antialiased = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1754021388]
+shape = SubResource("CircleShape2D_qhqgy")
+
+[node name="teleporter" type="Node2D" parent="." unique_id=1617581289]
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="teleporter" unique_id=2062300463]
+mesh = SubResource("SphereMesh_qhqgy")
+
+[node name="Node2D" type="Node2D" parent="." unique_id=1558004084]
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="Node2D" unique_id=48791419]
+mesh = SubResource("SphereMesh_dqkch")

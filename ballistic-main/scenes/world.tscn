@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://coar0w52ewb50"]
+
+[ext_resource type="PackedScene" uid="uid://be8qbmt0fe144" path="res://scenes/player.tscn" id="1_nnsk1"]
+[ext_resource type="PackedScene" uid="uid://do3j8kote024j" path="res://scenes/player2.tscn" id="1_rwgxs"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_nnsk1"]
+radius = 53.009434
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nnsk1"]
+albedo_color = Color(0, 1, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_nnsk1"]
+material = SubResource("StandardMaterial3D_nnsk1")
+radius = 1.0
+
+[node name="World" type="Node2D" unique_id=308220145]
+
+[node name="Player2" parent="." unique_id=1626312212 instance=ExtResource("1_rwgxs")]
+position = Vector2(-137, 0)
+
+[node name="Player" parent="." unique_id=16429601 instance=ExtResource("1_nnsk1")]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=705499144]
+zoom = Vector2(3.055, 3.055)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=88515480]
+collision_layer = 5
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=2044750557]
+position = Vector2(68, 0)
+shape = SubResource("CircleShape2D_nnsk1")
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="StaticBody2D" unique_id=347614561]
+position = Vector2(68, 7.6293945e-06)
+scale = Vector2(53, 54.000004)
+mesh = SubResource("CapsuleMesh_nnsk1")
