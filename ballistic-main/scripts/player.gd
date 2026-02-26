@@ -24,6 +24,8 @@ var aim_line_length = 20
 
 var can_teleport = false
 
+@export var health = 270
+
 #var dash_speed = 260
 #var dash_duration = 0.12
 #var dash_cooldown = 0.35
@@ -168,6 +170,7 @@ func _physics_process(delta):
 	
 func _draw():
 	draw_circle(Vector2.ZERO, radius, color)
+	draw_arc(Vector2.ZERO, 5, deg_to_rad(health), deg_to_rad(270), 16, Color.AQUAMARINE, 0.5, true)
 
 func _ready():
 	can_move = true

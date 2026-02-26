@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://be8qbmt0fe144"]
+[gd_scene format=3 uid="uid://be8qbmt0fe144"]
 
 [ext_resource type="Script" uid="uid://dymxf0txidqa8" path="res://scripts/player.gd" id="1_3vyb7"]
 [ext_resource type="Script" uid="uid://c0iv6vmjog1bk" path="res://scripts/aim.gd" id="2_g2els"]
@@ -15,35 +15,37 @@ radius = 4.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_dqkch"]
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" unique_id=84259939]
+collision_layer = 2
 script = ExtResource("1_3vyb7")
+health = -80
 paintball_scene = ExtResource("2_qhqgy")
 
-[node name="MeshInstance2D" type="MeshInstance2D" parent="."]
+[node name="MeshInstance2D" type="MeshInstance2D" parent="." unique_id=971986014]
 mesh = SubResource("SphereMesh_3vyb7")
 
-[node name="aim_container" type="Node2D" parent="."]
+[node name="aim_container" type="Node2D" parent="." unique_id=1622047927]
 
-[node name="aim" type="Node2D" parent="aim_container"]
+[node name="aim" type="Node2D" parent="aim_container" unique_id=1208962761]
 position = Vector2(4, 0)
 script = ExtResource("2_g2els")
 
-[node name="spawner" type="Marker2D" parent="aim_container"]
+[node name="spawner" type="Marker2D" parent="aim_container" unique_id=1097932124]
 
-[node name="Line2D" type="Line2D" parent="aim_container"]
+[node name="Line2D" type="Line2D" parent="aim_container" unique_id=1410373658]
 z_index = -2
 width = 1.0
 antialiased = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=169148175]
 shape = SubResource("CircleShape2D_qhqgy")
 
-[node name="teleporter" type="Node2D" parent="."]
+[node name="teleporter" type="Node2D" parent="." unique_id=1996129764]
 
-[node name="MeshInstance2D" type="MeshInstance2D" parent="teleporter"]
+[node name="MeshInstance2D" type="MeshInstance2D" parent="teleporter" unique_id=266315203]
 mesh = SubResource("SphereMesh_qhqgy")
 
-[node name="Node2D" type="Node2D" parent="."]
+[node name="Node2D" type="Node2D" parent="." unique_id=643189957]
 
-[node name="MeshInstance2D" type="MeshInstance2D" parent="Node2D"]
+[node name="MeshInstance2D" type="MeshInstance2D" parent="Node2D" unique_id=913767435]
 mesh = SubResource("SphereMesh_dqkch")
