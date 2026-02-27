@@ -93,8 +93,10 @@ func _physics_process(delta):
 	if !can_teleport && can_detect:
 		if aim != Vector2.ZERO:
 			$Node2D/MeshInstance2D.visible = true
-			$Node2D/MeshInstance2D.position = get_aim_vector().normalized() * 50
-			#var aim_vec = get_aim_vector()
+			#$Node2D/MeshInstance2D.position = get_aim_vector().normalized() * 50
+			var target_pos = get_aim_vector().normalized() * 50
+			
+			$Node2D/MeshInstance2D.position = $Node2D/MeshInstance2D.position.lerp(target_pos, 0.25)
 			#if aim_vec.length() > 0:
 				#$Node2D/MeshInstance2D.position = aim_vec.normalised() * 50
 				#
@@ -166,11 +168,14 @@ func _physics_process(delta):
 	
 	if can_move:
 		move_and_slide()
+		
+	_draw()
 	
 	
 func _draw():
+	
 	draw_circle(Vector2.ZERO, radius, color)
-	draw_arc(Vector2.ZERO, 5, deg_to_rad(health), deg_to_rad(270), 16, Color.AQUAMARINE, 0.5, true)
+	draw_arc(Vector2.ZERO, 5, deg_to_rad(health-90), deg_to_rad(270), 16, Color.AQUAMARINE, 0.5, true)
 
 func _ready():
 	can_move = true
@@ -195,7 +200,7 @@ func get_stick_vector() -> Vector2:
 	
 	var scaled = (len - deadzone) / (1 - deadzone)
 	return v.normalized() * scaled
-
+ 
 
 func get_aim_vector() -> Vector2:
 	var right_aim = "p%s_right_aim" % player_id
@@ -267,3 +272,20 @@ func update_aim():
 		#
 #func ease_out_cubic(t):
 	#return 1 - pow(1 - t, 3)
+
+
+func _on_area_2d_body_entered(body: Node2D) -> void:
+	print(1)
+	if body.is_in_group("paintball"):
+		print(2)
+		if body.get_parent().health <= 340:
+			body.get_parent().health += 20
+			queue_redraw()
+			print(body.get_parent().health)
+			if health >= 359:
+				die()
+
+
+
+func die():
+	pass

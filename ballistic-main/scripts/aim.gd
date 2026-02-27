@@ -1,7 +1,7 @@
 extends Node2D
 
 var color = Color.DODGER_BLUE
-var size = Vector2(2, 4)
+var size = Vector2(4, 4)
 
 func _draw():
 	draw_rect(

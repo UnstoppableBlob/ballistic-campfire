@@ -19,6 +19,7 @@ radius = 4.0
 collision_layer = 2
 script = ExtResource("1_agjl5")
 player_id = 1
+health = -90
 paintball_scene = ExtResource("2_dj65e")
 
 [node name="MeshInstance2D" type="MeshInstance2D" parent="." unique_id=477978583]
@@ -31,6 +32,7 @@ position = Vector2(4, 0)
 script = ExtResource("3_hb4is")
 
 [node name="spawner" type="Marker2D" parent="aim_container" unique_id=2065869487]
+position = Vector2(9.25, 0)
 
 [node name="Line2D" type="Line2D" parent="aim_container" unique_id=771356517]
 z_index = -2
@@ -49,3 +51,12 @@ mesh = SubResource("SphereMesh_qhqgy")
 
 [node name="MeshInstance2D" type="MeshInstance2D" parent="Node2D" unique_id=1992274151]
 mesh = SubResource("SphereMesh_dqkch")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1426898796]
+collision_layer = 8
+collision_mask = 8
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D" unique_id=859184270]
+shape = SubResource("CircleShape2D_qhqgy")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
