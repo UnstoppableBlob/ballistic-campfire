@@ -1,11 +1,17 @@
 extends CharacterBody2D
 
 @export var player_id : int = 0
+@export var paintball_scene : PackedScene
+@export var health = 270
+
+# --- Depth Settings ---
+var current_layer : int = 1 # 1: Surface, 2: Middle, 3: Deep
+var scale_step : float = 0.25 # Shrink amount per layer
+var base_scale : float = 1.0
 
 var radius = 4
 var color = Color.DODGER_BLUE
 var speed: float = 40
-
 var acceleration = 240
 var friction = 280
 
@@ -13,140 +19,43 @@ var aim_deadzone = 0.18
 var aim_smoothness = 20
 var aim_angle = 0
 
-var is_vis = false
-
 var fire_rate = 0.15
 var fire_timer = 0
 
-#var not_paused = true
-
-var aim_line_length = 20
-
-var can_teleport = false
-
-@export var health = 270
-
-#var dash_speed = 260
-#var dash_duration = 0.12
-#var dash_cooldown = 0.35
-#
-#var dash_timer = 0
-#var dash_cooldown_timer = 0
-#var dash_direction = Vector2.ZERO
-#var is_dashing = false
-
-var can_move = true
-
-var can_slow = false
-var tele_allowed = false
-
-@export var paintball_scene : PackedScene
-
 @onready var aim_cont = $aim_container
-@onready var tele = $teleporter
 
+var start_position: Vector2
 
-
+func _ready():
+	start_position = global_position 
+	
+	# --- NEW: Make the player detectable by all 3 fish layers ---
+	# We turn on the mask for 1, 2, and 3 so we can "see" all fish
+	for i in range(1, 4):
+		$Area2D.set_collision_mask_value(i, true)
+		$Area2D.set_collision_layer_value(i, true)
+	
+	update_depth_state(true) 
+	queue_redraw()
 
 func _physics_process(delta):
-	var can_detect = true
-	if can_slow:
-		if Input.is_action_pressed("slow"):
-			#get_tree().paused = true
-			#not_paused = 
-			$Node2D/MeshInstance2D.visible = false
-			can_detect = false
-			Engine.time_scale = 0.125
-			
-		else:
-			#get_tree().paused = false
-			can_detect = true
-			Engine.time_scale = 1
-		
-				
-	if can_detect:
-		if tele_allowed:
-			if Input.is_action_just_pressed("dash"):
-				tele.visible = true
-				can_teleport = true
-				speed = 10
-		
-			if can_teleport:
-				tele.position = velocity.normalized() * 50
-				can_move = false
-			
-			if Input.is_action_just_released("dash"):
-				tele.visible = false
-				speed = 40
-				can_teleport = false
-				can_move = true
-				global_position = tele.global_position
+	#print(current_layer)
+	handle_depth_input()
 	
-	
-	#dash_cooldown_timer -= delta
-	
-	#if Input.is_action_just_pressed("dash") and dash_cooldown_timer <= 0:
-		#start_dash()
-	
+	# --- Aiming Logic ---
 	var aim = get_aim_vector()
 	
-	if !can_teleport && can_detect:
-		if aim != Vector2.ZERO:
-			$Node2D/MeshInstance2D.visible = true
-			#$Node2D/MeshInstance2D.position = get_aim_vector().normalized() * 50
-			var target_pos = get_aim_vector().normalized() * 50
+	if aim != Vector2.ZERO:
+		var target_angle = aim.angle()
+		aim_angle = lerp_angle(aim_angle, target_angle, 1 - exp(-aim_smoothness * delta))
+	elif velocity != Vector2.ZERO: 
+		# Snap aim to movement direction if not explicitly aiming
+		var target_angle = velocity.angle()
+		aim_angle = lerp_angle(aim_angle, target_angle, 1 - exp(-aim_smoothness * delta))
 			
-			$Node2D/MeshInstance2D.position = $Node2D/MeshInstance2D.position.lerp(target_pos, 0.25)
-			#if aim_vec.length() > 0:
-				#$Node2D/MeshInstance2D.position = aim_vec.normalised() * 50
-				#
-			var target_angle = aim.angle()
-			aim_angle = lerp_angle(
-				aim_angle,
-				target_angle,
-				1 - exp(-aim_smoothness * delta)
-			)
-			is_vis = true
-		else:
-			$Node2D/MeshInstance2D.visible = false
-			if velocity != Vector2.ZERO: 
-				aim = velocity
-				var target_angle = aim.angle()
-				aim_angle = lerp_angle(
-					aim_angle,
-					target_angle,
-					1 - exp(-aim_smoothness * delta)
-				)
-				is_vis = false
-			
-	update_aim()
-	
 	aim_cont.rotation = aim_angle
 	
-	#var aim_direction = Vector2(
-		#Input.get_action_strength("right_aim") - Input.get_action_strength("left_aim"),
-		#Input.get_action_strength("down_aim") - Input.get_action_strength("up_aim")
-	#)
-	#
-	#if aim_direction.length() > 0.15:
-		#aim_cont.rotation = aim_direction.angle()
-	#
-	
-	#if is_dashing:
-		#dash_timer -= delta
-		#
-		#var t = dash_timer / dash_duration
-		#var eased_speed = dash_speed * ease_out_cubic(t)
-		#
-		#velocity = dash_direction * eased_speed
-		#move_and_slide()
-		
-		#if dash_timer <= 0:
-			#is_dashing = false
-			#velocity = dash_direction * speed   
-			#dash_cooldown_timer = dash_cooldown
-		#return
-	
+	# --- Movement Logic ---
 	var input = get_stick_vector()
 	var target_velocity = input * speed
 	
@@ -155,137 +64,149 @@ func _physics_process(delta):
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 		
+	move_and_slide()
 		
+	# --- Shooting Logic ---
 	fire_timer -= delta
 	
-	var fire_input = "p%s_fire" % player_id
-	if Input.is_action_pressed(fire_input) and fire_timer <= 0:
+	if Input.is_action_pressed("fire") and fire_timer <= 0:
 		fire()
 		fire_timer = fire_rate
-	
-	if !can_detect:
-		aim_cont.rotation = velocity.angle()
-	
-	if can_move:
-		move_and_slide()
 		
-	_draw()
+	#if current_layer == 1:
+		#WaveManager.background1.visible = true
+		#WaveManager.background2.visible = false
+		#WaveManager.background3.visible = false
+	#if current_layer == 2:
+		#WaveManager.background1.visible = false
+		#WaveManager.background2.visible = true
+		#WaveManager.background3.visible = false
+	#if current_layer == 3:
+		#WaveManager.background1.visible = false
+		#WaveManager.background2.visible = false
+		#WaveManager.background3.visible = true
 	
+func handle_depth_input():
+	var up_input = "dive_up"
+	var down_input = "dive_down"
 	
-func _draw():
-	
-	draw_circle(Vector2.ZERO, radius, color)
-	draw_arc(Vector2.ZERO, 5, deg_to_rad(health-90), deg_to_rad(270), 16, Color.AQUAMARINE, 0.5, true)
+	if Input.is_action_just_pressed(up_input) and current_layer > 1:
+		current_layer -= 1
+		update_depth_state()
+	elif Input.is_action_just_pressed(down_input) and current_layer < 3:
+		current_layer += 1
+		update_depth_state()
 
-func _ready():
-	can_move = true
-	$MeshInstance2D.visible = false
-	queue_redraw()
+func update_depth_state(instant: bool = false):
+	# Calculate visual targets
+	var target_scale_value = base_scale - ((current_layer - 1) * scale_step)
+	var target_scale = Vector2(target_scale_value, target_scale_value)
+	var target_modulate = Color(1, 1, 1, 1.0 - ((current_layer - 1) * 0.25)) # Darken as you go deeper
+	
+	# Update collision layers (Assuming your game uses Physics Layer 1, 2, and 3 for the depths)
+	#if current_layer == 1:
+		#set_collision_layer_value()
+
+	# Apply visuals
+	if instant:
+		scale = target_scale
+		modulate = target_modulate
+	else:
+		var tween = create_tween().set_parallel(true)
+		tween.tween_property(self, "scale", target_scale, 0.25).set_trans(Tween.TRANS_SINE)
+		tween.tween_property(self, "modulate", target_modulate, 0.25).set_trans(Tween.TRANS_SINE)
 
 func get_stick_vector() -> Vector2:
 	var right = "p%s_right" % player_id
 	var left = "p%s_left" % player_id
 	var up = "p%s_up" % player_id
 	var down = "p%s_down" % player_id
+	
 	var v = Vector2(
 		Input.get_action_strength(right) - Input.get_action_strength(left),
 		Input.get_action_strength(down) - Input.get_action_strength(up)
 	)
-	 
 	var deadzone := 0.12
-	var len = v.length()
-	
-	if len < deadzone:
+	var length = v.length()
+	if length < deadzone:
 		return Vector2.ZERO
-	
-	var scaled = (len - deadzone) / (1 - deadzone)
-	return v.normalized() * scaled
- 
+	return v.normalized() * ((length - deadzone) / (1 - deadzone))
 
 func get_aim_vector() -> Vector2:
 	var right_aim = "p%s_right_aim" % player_id
 	var left_aim = "p%s_left_aim" % player_id
 	var up_aim = "p%s_up_aim" % player_id
 	var down_aim = "p%s_down_aim" % player_id
+	
 	var v = Vector2(
 		Input.get_action_strength(right_aim) - Input.get_action_strength(left_aim),
 		Input.get_action_strength(down_aim) - Input.get_action_strength(up_aim)
 	)
-	
-	var len = v.length()
-	if len < aim_deadzone:
+	var length = v.length()
+	if length < aim_deadzone:
 		return Vector2.ZERO
-	
-	var scaled = (len - aim_deadzone) / (1 - aim_deadzone)
-	return v.normalized() * scaled
-	
-	
-	
+	return v.normalized() * ((length - aim_deadzone) / (1 - aim_deadzone))
 
 func fire():
-	var paintball = paintball_scene.instantiate()
-	get_tree().current_scene.add_child(paintball)
-	
-	paintball.global_position = $aim_container/spawner.global_position
-	paintball.direction = Vector2.RIGHT.rotated(aim_angle)
+	#print("fired1")
+	if paintball_scene:
+		#Input.start_joy_vibration(1, 1.0, 1.0, 0.5)
+		#print("fired2")
+		var paintball = paintball_scene.instantiate()
+		
+		# 1. SET ALL PROPERTIES FIRST
+		paintball.global_position = $aim_container/spawner.global_position
+		paintball.direction = Vector2.RIGHT.rotated(aim_angle)
+		if "current_layer" in paintball:
+			paintball.current_layer = current_layer
+			
+		# 2. THEN ADD IT TO THE SCENE LAST
+		get_tree().current_scene.add_child(paintball)
+
+func _draw():
+	draw_circle(Vector2.ZERO, radius, color)
 
 
-func update_aim():
-	var line = $aim_container/Line2D
-	var aim = get_aim_vector()
-	
-	if aim == Vector2.ZERO:
-		line.visible = false
-		return
-	else:
-		line.visible = false
-	
-	line.clear_points()
-	
-	var start = Vector2.ZERO
-	var end = Vector2.RIGHT * aim_line_length
-	
-	line.add_point(start)
-	line.add_point(end)
-	
-	line.gradient = Gradient.new()
-	line.gradient.set_color(0, Color(1, 1, 1, 0.8))
-	line.gradient.set_color(1, Color(1, 1, 1, 0))
-	
-	line.width_curve = Curve.new()
-	line.width_curve.add_point(Vector2(0, 1))
-	line.width_curve.add_point(Vector2(1, 0))
+func _on_area_2d_area_entered(area: Area2D) -> void:
+	if area.get_parent().is_in_group("fish"):
+		die()
 	
 	
 	
-
-#func start_dash():
-	#var move = get_stick_vector()
-	#if move == Vector2.ZERO:
-		#return
-	
-	#is_dashing = true
-	#dash_timer = dash_duration
-	#dash_direction = move.normalized()
-	#else:
-		#dash_direction = Vector2.RIGHT.rotated()
-		#
-#func ease_out_cubic(t):
-	#return 1 - pow(1 - t, 3)
-
-
-func _on_area_2d_body_entered(body: Node2D) -> void:
-	print(1)
-	if body.is_in_group("paintball"):
-		print(2)
-		if body.get_parent().health <= 340:
-			body.get_parent().health += 20
-			queue_redraw()
-			print(body.get_parent().health)
-			if health >= 359:
-				die()
-
-
-
 func die():
-	pass
+	set_physics_process(false)
+	set_process_unhandled_input(false)
+	
+	$Area2D.set_deferred("monitoring", false)
+	$Area2D.set_deferred("monitorable", false)
+	
+	var death_tween = create_tween().set_parallel(true)
+	var duration_in_seconds = 1.5 
+	
+	death_tween.tween_property(self, "scale", scale * 3.0, duration_in_seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	death_tween.tween_property(self, "modulate", Color(1, 0, 0, 0), duration_in_seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	death_tween.tween_property(self, "rotation", rotation + (PI * 8), duration_in_seconds)
+	death_tween.tween_property(self, "global_position", global_position + Vector2(0, -50), duration_in_seconds).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	# --- CHANGED: Call respawn instead of queue_free! ---
+	death_tween.chain().tween_callback(respawn)
+
+
+func respawn():
+	# 1. Reset physical position and movement
+	global_position = start_position
+	velocity = Vector2.ZERO
+	rotation = 0
+	aim_angle = 0
+	health = 270
+	
+	# 2. Reset visuals (Your update_depth_state function perfectly handles scale and modulate!)
+	update_depth_state(true)
+	
+	# 3. Turn physics and inputs back on
+	set_physics_process(true)
+	set_process_unhandled_input(true)
+	
+	# 4. Turn hitboxes back on safely
+	$Area2D.set_deferred("monitoring", true)
+	$Area2D.set_deferred("monitorable", true)

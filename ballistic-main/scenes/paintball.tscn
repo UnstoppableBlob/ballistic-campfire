@@ -9,7 +9,7 @@ radius = 2.0
 radius = 1.0
 height = 2.0
 
-[node name="paintball" type="CharacterBody2D" unique_id=518791486 groups=["paintball"]]
+[node name="paintball" type="Area2D" unique_id=523751172 groups=["paintball"]]
 z_index = -6
 collision_layer = 8
 collision_mask = 4

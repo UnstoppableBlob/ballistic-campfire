@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://bsj6utuhihlb3"]
+
+[ext_resource type="Texture2D" uid="uid://cug13u5o8mug3" path="res://images/castle.svg" id="1_fxsks"]
+[ext_resource type="Script" uid="uid://dfg567ab6cqot" path="res://scenes/castle_1.gd" id="2_wm6h4"]
+[ext_resource type="Texture2D" uid="uid://boyhjhbruq8hv" path="res://images/fill.svg" id="3_mj76y"]
+[ext_resource type="Texture2D" uid="uid://b4xo0n3wv0yvp" path="res://images/border.svg" id="4_bxwp6"]
+[ext_resource type="Texture2D" uid="uid://c3tt4xw5s2kpy" path="res://images/health.svg" id="5_hiouo"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_0ysgy"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_fxsks")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wm6h4"]
+size = Vector2(16, 15)
+
+[node name="castle1" type="AnimatedSprite2D" unique_id=415831732 groups=["castle1"]]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_0ysgy")
+script = ExtResource("2_wm6h4")
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="." unique_id=165367968]
+texture_filter = 1
+offset_left = -8.0
+offset_top = -19.0
+offset_right = 32.0
+offset_bottom = 21.0
+max_value = 10.0
+step = 0.01
+texture_under = ExtResource("3_mj76y")
+texture_over = ExtResource("4_bxwp6")
+texture_progress = ExtResource("5_hiouo")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=2146989198]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=985853945 groups=["castle1"]]
+visible = false
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_wm6h4")
+
+[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]

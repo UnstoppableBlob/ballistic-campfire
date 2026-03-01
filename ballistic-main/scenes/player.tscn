@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://dymxf0txidqa8" path="res://scripts/player.gd" id="1_3vyb7"]
 [ext_resource type="Script" uid="uid://c0iv6vmjog1bk" path="res://scripts/aim.gd" id="2_g2els"]
-[ext_resource type="PackedScene" uid="uid://7broruggg1bk" path="res://scenes/paintball.tscn" id="2_qhqgy"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_3vyb7"]
 radius = 4.0
@@ -15,13 +14,15 @@ radius = 4.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_dqkch"]
 
-[node name="Player" type="CharacterBody2D" unique_id=84259939]
+[sub_resource type="CircleShape2D" id="CircleShape2D_g2els"]
+radius = 4.0
+
+[node name="Player" type="CharacterBody2D" unique_id=84259939 groups=["player"]]
 collision_layer = 2
 script = ExtResource("1_3vyb7")
-health = -80
-paintball_scene = ExtResource("2_qhqgy")
 
 [node name="MeshInstance2D" type="MeshInstance2D" parent="." unique_id=971986014]
+visible = false
 mesh = SubResource("SphereMesh_3vyb7")
 
 [node name="aim_container" type="Node2D" parent="." unique_id=1622047927]
@@ -43,9 +44,20 @@ shape = SubResource("CircleShape2D_qhqgy")
 [node name="teleporter" type="Node2D" parent="." unique_id=1996129764]
 
 [node name="MeshInstance2D" type="MeshInstance2D" parent="teleporter" unique_id=266315203]
+visible = false
 mesh = SubResource("SphereMesh_qhqgy")
 
 [node name="Node2D" type="Node2D" parent="." unique_id=643189957]
 
 [node name="MeshInstance2D" type="MeshInstance2D" parent="Node2D" unique_id=913767435]
+visible = false
 mesh = SubResource("SphereMesh_dqkch")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1628393324]
+collision_layer = 16
+collision_mask = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=521432186]
+shape = SubResource("CircleShape2D_g2els")
+
+[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]

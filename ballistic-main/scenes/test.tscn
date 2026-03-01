@@ -1,7 +1,49 @@
 [gd_scene format=3 uid="uid://dsbst1y8nsp0s"]
 
 [ext_resource type="Script" uid="uid://dt3nc4our1mgp" path="res://node_2d.gd" id="1_errlg"]
+[ext_resource type="Texture2D" uid="uid://h4ll8jjpep0b" path="res://images/fish.svg" id="2_bl13t"]
+[ext_resource type="Texture2D" uid="uid://boyhjhbruq8hv" path="res://images/fill.svg" id="3_j5jx5"]
+[ext_resource type="Texture2D" uid="uid://b4xo0n3wv0yvp" path="res://images/border.svg" id="4_lpvoh"]
+[ext_resource type="Texture2D" uid="uid://c3tt4xw5s2kpy" path="res://images/health.svg" id="5_at5dv"]
 
-[node name="Node2D" type="Node2D" unique_id=1966852637]
-position = Vector2(219, 83)
+[sub_resource type="SpriteFrames" id="SpriteFrames_iyx0m"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_bl13t")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_74lek"]
+radius = 2.5
+height = 9.0
+
+[node name="clown" type="Node2D" unique_id=1966852637 groups=["fish", "fish-1"]]
 script = ExtResource("1_errlg")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=59700447]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_iyx0m")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=229331221]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=810262319]
+rotation = 1.5707964
+shape = SubResource("CapsuleShape2D_74lek")
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="." unique_id=837668870]
+texture_filter = 1
+offset_left = -8.0
+offset_top = -15.0
+offset_right = 32.0
+offset_bottom = 25.0
+max_value = 10.0
+step = 0.01
+texture_under = ExtResource("3_j5jx5")
+texture_over = ExtResource("4_lpvoh")
+texture_progress = ExtResource("5_at5dv")
+
+[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]
