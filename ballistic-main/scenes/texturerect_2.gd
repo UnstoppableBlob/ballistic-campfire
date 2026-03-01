@@ -2,5 +2,5 @@ extends TextureRect
 
 
 # Called when the node enters the scene tree for the first time.
-#func _ready() -> void:
-	#WaveManager.background2 = self
+func _ready() -> void:
+	WaveManager.background2 = self

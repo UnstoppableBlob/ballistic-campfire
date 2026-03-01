@@ -73,18 +73,18 @@ func _physics_process(delta):
 		fire()
 		fire_timer = fire_rate
 		
-	#if current_layer == 1:
-		#WaveManager.background1.visible = true
-		#WaveManager.background2.visible = false
-		#WaveManager.background3.visible = false
-	#if current_layer == 2:
-		#WaveManager.background1.visible = false
-		#WaveManager.background2.visible = true
-		#WaveManager.background3.visible = false
-	#if current_layer == 3:
-		#WaveManager.background1.visible = false
-		#WaveManager.background2.visible = false
-		#WaveManager.background3.visible = true
+	if current_layer == 1:
+		WaveManager.background1.visible = true
+		WaveManager.background2.visible = false
+		WaveManager.background3.visible = false
+	if current_layer == 2:
+		WaveManager.background1.visible = false
+		WaveManager.background2.visible = true
+		WaveManager.background3.visible = false
+	if current_layer == 3:
+		WaveManager.background1.visible = false
+		WaveManager.background2.visible = false
+		WaveManager.background3.visible = true
 	
 func handle_depth_input():
 	var up_input = "dive_up"

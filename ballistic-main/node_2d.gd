@@ -63,13 +63,13 @@ extends Node2D
 
 
 
-var health = 5
-var max_health = 5
+var health = 3
+var max_health = 3
 
 var layer = 1
 var is_invincible = false 
 
-@export var speed: float = 155.0
+@export var speed: float = 14.0
 @export var rotation_speed: float = 5.0
 
 @onready var sprite = $AnimatedSprite2D 
